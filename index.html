@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disco de Newton - Simulador</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: white;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7, #fd79a8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            margin-bottom: 30px;
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .disc-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 30px auto;
+            perspective: 1000px;
+        }
+
+        .disc {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .disc.spinning {
+            animation: spin linear infinite;
+        }
+
+        .disc::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            background: #333;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+            margin: 30px 0;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn.stop-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+        }
+
+        .speed-slider {
+            width: 120px;
+            height: 6px;
+            border-radius: 3px;
+            outline: none;
+            background: rgba(255, 255, 255, 0.3);
+            -webkit-appearance: none;
+        }
+
+        .speed-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .info-panel {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: left;
+            backdrop-filter: blur(5px);
+        }
+
+        .info-panel h3 {
+            margin-top: 0;
+            color: #ffeaa7;
+        }
+
+        .info-panel p {
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .speed-display {
+            font-weight: bold;
+            color: #4ecdc4;
+        }
+
+        @keyframes spin {
+            from { transform: rotateZ(0deg); }
+            to { transform: rotateZ(360deg); }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .disc-container {
+                width: 250px;
+                height: 250px;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌈 Disco de Newton</h1>
+        <p class="subtitle">Demonstração da Síntese Aditiva de Cores</p>
+        
+        <div class="disc-container">
+            <div class="disc" id="newton-disc">
+                <svg viewBox="0 0 200 200" width="100%" height="100%">
+                    <!-- Vermelho (0° a 51.4°) -->
+                    <path d="M 100,100 L 100,0 A 100,100 0 0,1 178.2,37.7 Z" fill="#ff0000"/>
+                    <!-- Laranja (51.4° a 102.9°) -->
+                    <path d="M 100,100 L 178.2,37.7 A 100,100 0 0,1 197.5,122.3 Z" fill="#ff8000"/>
+                    <!-- Amarelo (102.9° a 154.3°) -->
+                    <path d="M 100,100 L 197.5,122.3 A 100,100 0 0,1 143.4,190.1 Z" fill="#ffff00"/>
+                    <!-- Verde (154.3° a 205.7°) -->
+                    <path d="M 100,100 L 143.4,190.1 A 100,100 0 0,1 56.6,190.1 Z" fill="#00ff00"/>
+                    <!-- Azul (205.7° a 257.1°) -->
+                    <path d="M 100,100 L 56.6,190.1 A 100,100 0 0,1 2.5,122.3 Z" fill="#0080ff"/>
+                    <!-- Índigo (257.1° a 308.6°) -->
+                    <path d="M 100,100 L 2.5,122.3 A 100,100 0 0,1 21.8,37.7 Z" fill="#0000ff"/>
+                    <!-- Violeta (308.6° a 360°) -->
+                    <path d="M 100,100 L 21.8,37.7 A 100,100 0 0,1 100,0 Z" fill="#8000ff"/>
+                </svg>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" id="start-btn">▶️ Iniciar Rotação</button>
+            <button class="btn stop-btn" id="stop-btn">⏹️ Parar</button>
+            
+            <div class="speed-control">
+                <span>🐌</span>
+                <input type="range" class="speed-slider" id="speed-slider" min="1" max="10" value="3">
+                <span>🚀</span>
+            </div>
+        </div>
+
+        <div class="info-panel">
+            <h3>📚 Como Funciona o Disco de Newton</h3>
+            <p><strong>Velocidade atual:</strong> <span class="speed-display" id="speed-display">Parado</span></p>
+            <p>O disco de Newton demonstra que a luz branca é composta por todas as cores do espectro visível. Quando o disco gira rapidamente, nosso olho não consegue distinguir as cores individualmente devido à <strong>persistência da visão</strong>.</p>
+            <p><strong>Experimente:</strong> Comece com velocidade baixa e aumente gradualmente. Note como as cores se misturam até ficarem <strong>BRANCAS</strong> nas velocidades 9-10! ⚪</p>
+            <p><strong>Cores do disco:</strong> Vermelho, Laranja, Amarelo, Verde, Azul, Índigo e Violeta - as cores do arco-íris! 🌈</p>
+        </div>
+    </div>
+
+    <script>
+        const disc = document.getElementById('newton-disc');
+        const startBtn = document.getElementById('start-btn');
+        const stopBtn = document.getElementById('stop-btn');
+        const speedSlider = document.getElementById('speed-slider');
+        const speedDisplay = document.getElementById('speed-display');
+        
+        let isSpinning = false;
+        let currentSpeed = 3;
+        
+        const speedLabels = {
+            1: 'Muito Lenta',
+            2: 'Lenta',
+            3: 'Normal',
+            4: 'Rápida',
+            5: 'Muito Rápida',
+            6: 'Extremamente Rápida',
+            7: 'Super Rápida',
+            8: 'Ultra Rápida',
+            9: 'Velocidade da Luz',
+            10: 'Máxima Velocidade!'
+        };
+
+        function updateDiscSpeed() {
+            const speed = parseInt(speedSlider.value);
+            currentSpeed = speed;
+            
+            // Calcula a duração da animação (mais baixo = mais rápido)
+            const baseDuration = Math.max(0.03, 2 - (speed * 0.2));
+            const duration = baseDuration * 0.6; // 40% mais rápido
+            
+            if (isSpinning) {
+                disc.style.animationDuration = duration + 's';
+                
+                // Pega todos os segmentos coloridos
+                const paths = disc.querySelectorAll('path');
+                
+                // Cores originais
+                const originalColors = ['#ff0000', '#ff8000', '#ffff00', '#00ff00', '#0080ff', '#0000ff', '#8000ff'];
+                
+                if (speed >= 10) {
+                    // VELOCIDADE MÁXIMA: BRANCO TOTAL
+                    paths.forEach(path => {
+                        path.setAttribute('fill', '#ffffff');
+                    });
+                    console.log('🟢 BRANCO TOTAL na velocidade:', speed);
+                } else if (speed >= 9) {
+                    // QUASE MÁXIMA: CINZA MUITO CLARO
+                    paths.forEach(path => {
+                        path.setAttribute('fill', '#f5f5f5');
+                    });
+                    console.log('🟢 CINZA CLARO na velocidade:', speed);
+                } else if (speed >= 8) {
+                    // ALTA: CORES MUITO CLARAS (misturando com branco)
+                    const lightColors = ['#ffcccc', '#ffddaa', '#ffffaa', '#ccffcc', '#ccddff', '#ccccff', '#ddccff'];
+                    paths.forEach((path, index) => {
+                        path.setAttribute('fill', lightColors[index]);
+                    });
+                } else if (speed >= 6) {
+                    // MÉDIA: CORES CLARAS
+                    const mediumColors = ['#ff9999', '#ffbb88', '#ffff88', '#99ff99', '#99bbff', '#9999ff', '#bb99ff'];
+                    paths.forEach((path, index) => {
+                        path.setAttribute('fill', mediumColors[index]);
+                    });
+                } else {
+                    // BAIXA: CORES ORIGINAIS
+                    paths.forEach((path, index) => {
+                        path.setAttribute('fill', originalColors[index]);
+                    });
+                }
+            }
+            
+            speedDisplay.textContent = speedLabels[speed] || `Velocidade ${speed}`;
+        }
+
+        function startSpinning() {
+            if (!isSpinning) {
+                isSpinning = true;
+                disc.classList.add('spinning');
+                updateDiscSpeed();
+                startBtn.textContent = '⏸️ Pausar';
+                speedDisplay.textContent = speedLabels[currentSpeed];
+            } else {
+                stopSpinning();
+            }
+        }
+
+        function stopSpinning() {
+            isSpinning = false;
+            disc.classList.remove('spinning');
+            
+            // Restaura as cores originais dos segmentos
+            const paths = disc.querySelectorAll('path');
+            const originalColors = ['#ff0000', '#ff8000', '#ffff00', '#00ff00', '#0080ff', '#0000ff', '#8000ff'];
+            paths.forEach((path, index) => {
+                path.setAttribute('fill', originalColors[index]);
+            });
+            
+            startBtn.textContent = '▶️ Iniciar Rotação';
+            speedDisplay.textContent = 'Parado';
+        }
+
+        // Event listeners
+        startBtn.addEventListener('click', startSpinning);
+        stopBtn.addEventListener('click', stopSpinning);
+        speedSlider.addEventListener('input', updateDiscSpeed);
+
+        // Click no disco para iniciar/parar
+        disc.addEventListener('click', startSpinning);
+
+        // Inicialização
+        updateDiscSpeed();
+
+        // Adiciona efeito de hover no disco
+        disc.addEventListener('mouseenter', function() {
+            if (!isSpinning) {
+                this.style.transform = 'scale(1.05) rotateX(10deg)';
+            }
+        });
+
+        disc.addEventListener('mouseleave', function() {
+            if (!isSpinning) {
+                this.style.transform = 'scale(1) rotateX(0deg)';
+            }
+        });
+
+        // Efeito de partículas removido para não interferir na visualização
+    </script>
+</body>
+</html>
